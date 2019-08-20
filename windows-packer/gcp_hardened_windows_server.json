@@ -1,0 +1,99 @@
+{
+  "variables": {
+    "alt_admin_user": "{{env `ALT_ADMIN_USER`}}",
+    "admin_password": "{{env `ADMIN_PASSWORD`}}",
+    "alt_admin_pwd": "{{.WinRMPassword}}",
+    "source_image": "{{env `SOURCE_IMAGE`}}",
+    "image_family": "{{env `IMAGE_FAMILY`}}",
+    "project_id": "{{env `PROJECT_ID`}}",
+    "network_id": "{{env `NETWORK_ID`}}",
+    "subnetwork_id": "{{env `GCP_SUBNETWORK`}}"
+    },
+  "_comment": "Packs a security hardened Image of Windows Server 2019 for GCP",
+  "builders": [
+      {
+        "type": "googlecompute",
+        "project_id": "{{user `project_id`}}",
+        "network": "{{user `network_id`}}",
+        "subnetwork": "{{user `subnetwork_id`}}",
+        "source_image": "{{user `source_image`}}",
+        "disk_size": "120",
+        "machine_type": "n1-standard-4",
+        "communicator": "winrm",
+        "winrm_username": "{{user `alt_admin_user`}}",
+        "winrm_insecure": true,
+        "winrm_use_ssl": true,
+        "state_timeout" : "15m",
+        "metadata": {
+          "windows-startup-script-cmd": "winrm quickconfig -quiet & net user /add {{user `alt_admin_user`}} & net localgroup administrators {{user `alt_admin_user`}} /add & winrm set winrm/config/service/auth @{Basic=\"true\"}"
+        },
+        "zone": "us-west1-a",
+        "image_name": "pmi-{{user `source_image`}}-{{timestamp}}",
+        "image_family": "pmi-{{user `image_family`}}",
+        "image_description":"acme Custom {{user `source_image`}} Image {{timestamp}}"
+      }
+    ],
+    "provisioners": [
+      {
+        "type": "shell-local",
+        "environment_vars": "WINRMPASS={{.WinRMPassword}}",
+        "inline": ["secret=$(echo -n ${WINRMPASS} | gcloud kms encrypt --location global --keyring \"acme-ad-secrets\" --key \"acme-ad-secrets-key\" --plaintext-file - --ciphertext-file - | base64) && echo $secret > /tmp/${FILE_UUID}.txt"]
+      },
+      {
+        "type": "file",
+        "source": "./windows-packer/builder",
+        "destination": "C:\\Windows",
+        "direction": "upload"
+      },
+      {
+        "type": "windows-shell",
+        "inline": [
+          "echo \"Installing logging and monitoring agents:\"",
+          "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -sta -ExecutionPolicy Unrestricted -file C:/Windows/builder/setup-scripts/logging-and-monitoring-agents.ps1"
+         ]
+      },
+      {
+        "type": "powershell",
+        "valid_exit_codes": [ 0, 259 ],
+        "elevated_user": "SYSTEM",
+        "elevated_password": "",
+        "inline": [
+          "Write-Host \"Set default Administrator password:\"",
+          "Set-LocalUser -Name \"Administrator\" -Password (ConvertTo-SecureString -AsPlainText \"{{user `admin_password`}}\" -Force)",
+
+          "Write-Host \"Installing Windows Updates:\"",
+          "Start-Process C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -ArgumentList \"-ExecutionPolicy Unrestricted -File C:/Windows/builder/setup-scripts/win-updates.ps1\" -Wait -NoNewWindow -PassThru"
+         ]
+      },
+      {
+        "type": "powershell",
+        "valid_exit_codes": [ 0, 259 ],
+        "elevated_user": "SYSTEM",
+        "elevated_password": "",
+        "inline": [
+          "Write-Host \"Installing OpenSSH:\"",
+          "Start-Process C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -ArgumentList \"-ExecutionPolicy Unrestricted -File C:/Windows/builder/setup-scripts/install-openssh.ps1\" -Wait -NoNewWindow -PassThru",
+          
+          "Write-Host \"Installing Python:\"",
+          "Start-Process C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -ArgumentList \"-ExecutionPolicy Unrestricted -File C:/Windows/builder/setup-scripts/install-python.ps1\" -Wait -NoNewWindow -PassThru"
+         ]
+      },
+      {
+        "type": "powershell",
+        "valid_exit_codes": [ 0, 259 ],
+        "inline": [
+          "echo \"Applying security baseline::\"",
+          "Start-Process C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -ArgumentList \"-ExecutionPolicy Unrestricted -file C:/Windows/builder/benchmark-gpos/Local_Script/BaselineLocalInstall.ps1 -WS2019DomainController\"-Wait -NoNewWindow -PassThru"         ]
+      },
+      {
+        "type": "powershell",
+        "valid_exit_codes": [ 0, 259 ],
+        "elevated_user": "{{user `alt_admin_user`}}",
+        "elevated_password": "{{.WinRMPassword}}",
+        "inline": [
+          "Write-Host \"Running Sysprep:\"",
+          "Start-Process C:\\PROGRA~1\\Google\\COMPUT~1\\sysprep\\gcesysprep.bat -Wait -NoNewWindow"
+          ]
+      }
+   ]
+}
