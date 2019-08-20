@@ -25,15 +25,14 @@ pipeline:
         # - ls -las
         - GOOGLE_APPLICATION_CREDENTIALS="/drone/src/drone.json"
         - apk add --update python tar python-dev py-pip build-base curl zip bash
-        - FILE_UUID=="test-test"
         - curl https://dl.google.com/dl/cloudsdk/channels/rapid/google-cloud-sdk.tar.gz > gcloud.tar.gz
         - tar -xvzf ./gcloud.tar.gz
         - bash ./google-cloud-sdk/install.sh -q
         - source /drone/src/google-cloud-sdk/path.bash.inc
-        - echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+        - echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
         - gcloud --quiet config set project $GOOGLE_PROJECT_ID
         - gcloud --quiet config set compute/zone $GOOGLE_COMPUTE_ZONE
         - gcloud compute instances list
-        # - bash ./windows-packer/build.sh
-        # - source /drone/src/google-cloud-sdk/path.bash.inc && gsutil -m cp /tmp/${FILE_UUID}.txt gs://${ARTIFACT_BUCKET}/${FILE_UUID}.txt
-
+        - bash ./windows-packer/build.sh
+        - source /drone/src/google-cloud-sdk/path.bash.inc && gsutil -m cp /tmp/$DRONE_COMMIT_SHA.txt gs://$ARTIFACT_BUCKET/$DRONE_COMMIT_SHA.txt
+        
