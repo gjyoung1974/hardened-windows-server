@@ -6,8 +6,9 @@ pipeline:
   run-lint:
     group: pre-commit
     image: alpine:latest
-    environment:
-        SERVICE_KEY:
+    settings:
+        repo: gjyoung1974/hardened-windows-server
+        username:
         from_secret: GCLOUD_SERVICE_KEY
     pull: true
     commands:
