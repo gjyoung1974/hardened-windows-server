@@ -8,11 +8,11 @@ source /root/project/google-cloud-sdk/path.bash.inc
 PACKER_LOG=1
 
 # get the local .\Administrator account secret
-ADMIN_PASSWORD=$(echo -n "${ADMIN_PWD_CIPHERTEXT}" | base64 -d | gcloud kms decrypt \
+ADMIN_PASSWORD=$(echo -n "$ADMIN_PWD_CIPHERTEXT" | base64 -d | gcloud kms decrypt \
   --ciphertext-file=- \
   --plaintext-file=- \
-  --key=${SECRETS_KEY} \
-  --keyring=${SECRETS_KEYRING} \
+  --key=$SECRETS_KEY \
+  --keyring=$SECRETS_KEYRING \
   --location=global
 )
 
@@ -21,12 +21,12 @@ echo "Getting our Public IPV4 address"
 MY_PUBLIC_IPV4=$(curl https://api.ipify.org)
 
 #Set the Packer host project
-PROJECT_ID=${GOOGLE_PROJECT_ID}
-NETWORK_ID="projects/${GOOGLE_PROJECT_ID}/global/networks/${GCP_NETWORK_ID}"
-GCP_SUBNETWORK="${GCP_SUBNET_ID}"
+PROJECT_ID=$GOOGLE_PROJECT_ID
+NETWORK_ID="projects/$GOOGLE_PROJECT_ID/global/networks/$GCP_NETWORK_ID"
+GCP_SUBNETWORK=$GCP_SUBNET_ID
 
 # Temporarily enable WinRM traffic
-gcloud compute firewall-rules create allow-winrm --allow tcp:5986 --source-ranges "${MY_PUBLIC_IPV4}/32" --network ${NETWORK_ID}
+gcloud compute firewall-rules create allow-winrm --allow tcp:5986 --source-ranges "$MY_PUBLIC_IPV4/32" --network $NETWORK_ID
 
 # Select a source image from google's GCE compute image repository:
 SOURCE_IMAGE="windows-server-2019-dc-v20190620" # Server 2019 Datacenter Edition 06-20-2019 release
