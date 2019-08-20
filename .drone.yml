@@ -6,13 +6,13 @@ pipeline:
   run-lint:
     group: pre-commit
     image: alpine:latest
-    pull: true
     environment:
-        GCLOUD_SERVICE_KEY:
+        SERVICE_KEY:
         from_secret: GCLOUD_SERVICE_KEY
+    pull: true
     commands:
         - PATH=$PATH:/drone/src/google-cloud-sdk/bin
-        - echo $GCLOUD_SERVICE_KEY
+        # - echo $GCLOUD_SERVICE_KEY
         # - apk add --update python tar python-dev py-pip build-base curl zip bash
         # - FILE_UUID=="test-test"
         # - curl https://dl.google.com/dl/cloudsdk/channels/rapid/google-cloud-sdk.tar.gz > gcloud.tar.gz
