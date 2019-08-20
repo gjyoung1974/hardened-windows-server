@@ -7,6 +7,9 @@ pipeline:
     group: pre-commit
     image: alpine:latest
     pull: true
+    environment:
+        GCLOUD_SERVICE_KEY:
+        from_secret: GCLOUD_SERVICE_KEY
     commands:
         - PATH=$PATH:/drone/src/google-cloud-sdk/bin
         - echo $GCLOUD_SERVICE_KEY
