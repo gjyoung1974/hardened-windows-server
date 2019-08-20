@@ -7,7 +7,9 @@
     "image_family": "{{env `IMAGE_FAMILY`}}",
     "project_id": "{{env `PROJECT_ID`}}",
     "network_id": "{{env `NETWORK_ID`}}",
-    "subnetwork_id": "{{env `GCP_SUBNETWORK`}}"
+    "subnetwork_id": "{{env `GCP_SUBNETWORK`}}",
+    "secrets_key": "{{env `SECRETS_KEY`}}",
+    "secrets_keyring": "{{env `SECRETS_KEYRING`}}"
     },
   "_comment": "Packs a security hardened Image of Windows Server 2019 for GCP",
   "builders": [
@@ -37,7 +39,7 @@
       {
         "type": "shell-local",
         "environment_vars": "WINRMPASS={{.WinRMPassword}}",
-        "inline": ["secret=$(echo -n ${WINRMPASS} | gcloud kms encrypt --location global --keyring \"acme-ad-secrets\" --key \"acme-ad-secrets-key\" --plaintext-file - --ciphertext-file - | base64) && echo $secret > /tmp/${FILE_UUID}.txt"]
+        "inline": ["secret=$(echo -n ${WINRMPASS} | gcloud kms encrypt --location global --keyring {{user `secrets_keyring`}} --key {{user `secrets_key`}} --plaintext-file - --ciphertext-file - | base64) && echo $secret > /tmp/$DRONE_COMMIT_SHA.txt"]
       },
       {
         "type": "file",
