@@ -1,5 +1,5 @@
-# workspace:
-#   path: github.com/gjyoung1974/drone-hello-world
+workspace:
+  path: .
 
 pipeline:
   ##############
