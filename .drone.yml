@@ -1,22 +1,20 @@
-kind: pipeline
-name: default
+pipeline:
 
-steps:
-- name: build
-  image: hashicorp/packer:1.4.2
-  commands:
-    - PATH=$PATH:/drone/src/google-cloud-sdk/bin
-    - echo ${GCLOUD_SERVICE_KEY} >> /drone/src/drone.json
-    - apk add --update python tar python-dev py-pip build-base curl zip bash uuidgen
-    - FILE_UUID==$(uuidgen)
-    - curl https://dl.google.com/dl/cloudsdk/channels/rapid/google-cloud-sdk.tar.gz > gcloud.tar.gz
-    - tar -xvzf ./gcloud.tar.gz
-    - bash ./google-cloud-sdk/install.sh -q
-    - source /drone/src/google-cloud-sdk/path.bash.inc
-    - echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
-    - gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
-    - gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
-    - bash ./windows-packer/build.sh
-    - source /drone/src/google-cloud-sdk/path.bash.inc && gsutil -m cp /tmp/${FILE_UUID}.txt gs://${ARTIFACT_BUCKET}/${FILE_UUID}.txt
-    - echo "complete"
-    
+  run-build:
+    group: build
+    image: hashicorp:packer:1.4.2
+    pull: true
+    commands:
+        - PATH=$PATH:/drone/src/google-cloud-sdk/bin
+        - echo ${GCLOUD_SERVICE_KEY} >> /drone/src/drone.json
+        - apk add --update python tar python-dev py-pip build-base curl zip bash uuidgen
+        - FILE_UUID==$(uuidgen)
+        - curl https://dl.google.com/dl/cloudsdk/channels/rapid/google-cloud-sdk.tar.gz > gcloud.tar.gz
+        - tar -xvzf ./gcloud.tar.gz
+        - bash ./google-cloud-sdk/install.sh -q
+        - source /drone/src/google-cloud-sdk/path.bash.inc
+        - echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+        - gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+        - gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+        - bash ./windows-packer/build.sh
+        - source /drone/src/google-cloud-sdk/path.bash.inc && gsutil -m cp /tmp/${FILE_UUID}.txt gs://${ARTIFACT_BUCKET}/${FILE_UUID}.txt
