@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Source the Google Cloud SDK:
-source /root/project/google-cloud-sdk/completion.bash.inc
-source /root/project/google-cloud-sdk/path.bash.inc
+source /drone/src/google-cloud-sdk/completion.bash.inc
+source /drone/src/google-cloud-sdk/path.bash.inc
 
 # Enable packer logging
 PACKER_LOG=1

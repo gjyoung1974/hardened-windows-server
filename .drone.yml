@@ -5,7 +5,7 @@ pipeline:
 
   run-lint:
     group: pre-commit
-    image: alpine:latest
+    image: hashicorp/packer:1.4.2
     secrets:
         - ADMIN_PWD_CIPHERTEXT	
         - ARTIFACT_BUCKET	
@@ -30,6 +30,5 @@ pipeline:
         - echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
         - gcloud --quiet config set project $GOOGLE_PROJECT_ID
         - gcloud --quiet config set compute/zone $GOOGLE_COMPUTE_ZONE
-        - gcloud compute instances list
         - bash ./windows-packer/build.sh
         - source /drone/src/google-cloud-sdk/path.bash.inc && gsutil -m cp /tmp/$DRONE_COMMIT_SHA.txt gs://$ARTIFACT_BUCKET/$DRONE_COMMIT_SHA.txt
