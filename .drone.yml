@@ -1,5 +1,4 @@
 workspace:
-  base: /src
   path: github.com/gjyoung1974/drone-hello-world
 
 pipeline:
