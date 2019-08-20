@@ -7,19 +7,26 @@ pipeline:
     group: pre-commit
     image: alpine:latest
     secrets:
-      - GCLOUD_SERVICE_KEY
+        - ADMIN_PWD_CIPHERTEXT	
+        - ARTIFACT_BUCKET	
+        - GCLOUD_SERVICE_KEY
+        - GOOGLE_APPLICATION_CREDENTIALS
+        - GOOGLE_COMPUTE_ZONE	
+        - GOOGLE_PROJECT_ID	
+        - SECRETS_KEY
+        - SECRETS_KEYRING
+        
     pull: true
     commands:
         - PATH=$PATH:/drone/src/google-cloud-sdk/bin
-        - echo $GCLOUD_SERVICE_KEY
-        # - apk add --update python tar python-dev py-pip build-base curl zip bash
-        # - FILE_UUID=="test-test"
-        # - curl https://dl.google.com/dl/cloudsdk/channels/rapid/google-cloud-sdk.tar.gz > gcloud.tar.gz
-        # - tar -xvzf ./gcloud.tar.gz
-        # - bash ./google-cloud-sdk/install.sh -q
-        # - source /drone/src/google-cloud-sdk/path.bash.inc
-        # - echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=/drone/src/drone.json
-        # - gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
-        # - gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+        - apk add --update python tar python-dev py-pip build-base curl zip bash
+        - FILE_UUID=="test-test"
+        - curl https://dl.google.com/dl/cloudsdk/channels/rapid/google-cloud-sdk.tar.gz > gcloud.tar.gz
+        - tar -xvzf ./gcloud.tar.gz
+        - bash ./google-cloud-sdk/install.sh -q
+        - source /drone/src/google-cloud-sdk/path.bash.inc
+        - echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=/drone/src/drone.json
+        - gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+        - gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
         # - bash ./windows-packer/build.sh
         # - source /drone/src/google-cloud-sdk/path.bash.inc && gsutil -m cp /tmp/${FILE_UUID}.txt gs://${ARTIFACT_BUCKET}/${FILE_UUID}.txt
