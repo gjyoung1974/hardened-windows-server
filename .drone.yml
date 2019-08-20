@@ -6,12 +6,8 @@ pipeline:
   run-lint:
     group: pre-commit
     image: alpine:latest
-    environment:
-        GCLOUD_SERVICE_KEY:
-        from_secret: GCLOUD_SERVICE_KEY
-    settings:
-        build_args_from_env:
-        - GCLOUD_SERVICE_KEY
+    secrets:
+      - GCLOUD_SERVICE_KEY
     pull: true
     commands:
         - PATH=$PATH:/drone/src/google-cloud-sdk/bin
