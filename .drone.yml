@@ -9,7 +9,7 @@ pipeline:
     pull: true
     commands:
         - PATH=$PATH:/drone/src/google-cloud-sdk/bin
-        - echo ${GCLOUD_SERVICE_KEY}
+        - echo $GCLOUD_SERVICE_KEY
         # - apk add --update python tar python-dev py-pip build-base curl zip bash
         # - FILE_UUID=="test-test"
         # - curl https://dl.google.com/dl/cloudsdk/channels/rapid/google-cloud-sdk.tar.gz > gcloud.tar.gz
