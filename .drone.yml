@@ -13,6 +13,8 @@ pipeline:
     commands:
       - echo "Hello World"
       - echo "From DroneCI"
+      - pwd
+      - ls -las
 
 # pipeline:
 
