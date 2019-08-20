@@ -15,22 +15,21 @@ pipeline:
         - GOOGLE_PROJECT_ID	
         - SECRETS_KEY
         - SECRETS_KEYRING
-
     pull: true
     commands:
         - PATH=$PATH:/drone/src/google-cloud-sdk/bin
-        - echo ${GCLOUD_SERVICE_KEY} >> ./drone.json
-        - pwd
-        - ls -las
+        - echo $GCLOUD_SERVICE_KEY
+        - echo $GCLOUD_SERVICE_KEY > ./drone.json
         - cat ./drone.json
-        # - GOOGLE_APPLICATION_CREDENTIALS="/drone/src/drone.json"
+        - pwd
+        - las -las
         # - apk add --update python tar python-dev py-pip build-base curl zip bash
         # - FILE_UUID=="test-test"
         # - curl https://dl.google.com/dl/cloudsdk/channels/rapid/google-cloud-sdk.tar.gz > gcloud.tar.gz
         # - tar -xvzf ./gcloud.tar.gz
         # - bash ./google-cloud-sdk/install.sh -q
         # - source /drone/src/google-cloud-sdk/path.bash.inc
-        # - echo ${GCLOUD_SERVICE_KEY} | gcloud auth activate-service-account --key-file="/drone/src/drone.json"
+        # - echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=/drone/src/drone.json
         # - gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
         # - gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
         # - bash ./windows-packer/build.sh
