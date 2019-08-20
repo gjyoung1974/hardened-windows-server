@@ -18,3 +18,5 @@ steps:
     - gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
     - bash ./windows-packer/build.sh
     - source /drone/src/google-cloud-sdk/path.bash.inc && gsutil -m cp /tmp/${FILE_UUID}.txt gs://${ARTIFACT_BUCKET}/${FILE_UUID}.txt
+    - echo "complete"
+    
