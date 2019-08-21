@@ -5,7 +5,8 @@
 Vulnerability management CI flow:    
 ![CICD Flow](./docs/cicd-flow.png)
 
-[CIS Benchmark - MSFT Windows Server](https://www.cisecurity.org/benchmark/microsoft_windows_server/)    
+This is an automation of the work provided © Microsoft
+[Security-baseline-FINAL-for-Windows-10-v1809-and-Windows-Server](https://techcommunity.microsoft.com/t5/Microsoft-Security-Baselines/Security-baseline-FINAL-for-Windows-10-v1809-and-Windows-Server/ba-p/701082)    
 
 ### How is this run? See the [.drone.yml](.drone.yml) job section
 
