@@ -3,7 +3,7 @@ workspace:
 
 pipeline:
 
-  run-lint:
+  run-build:
     group: pre-commit
     image: hashicorp/packer:1.4.2
     secrets:
