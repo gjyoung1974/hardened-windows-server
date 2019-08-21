@@ -30,8 +30,8 @@
           "windows-startup-script-cmd": "winrm quickconfig -quiet & net user /add {{user `alt_admin_user`}} & net localgroup administrators {{user `alt_admin_user`}} /add & winrm set winrm/config/service/auth @{Basic=\"true\"}"
         },
         "zone": "us-west1-a",
-        "image_name": "pmi-{{user `source_image`}}-{{timestamp}}",
-        "image_family": "pmi-{{user `image_family`}}",
+        "image_name": "acme-{{user `source_image`}}-{{timestamp}}",
+        "image_family": "acme-{{user `image_family`}}",
         "image_description":"acme Custom {{user `source_image`}} Image {{timestamp}}"
       }
     ],
