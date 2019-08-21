@@ -1,6 +1,6 @@
 # Windows Server Hardening
 
-## Pack a Microsoft Windows Server© and apply CIS Benchmark Hardening        
+## Pack a Microsoft© Windows Server©, apply customizations and security baseline hardening        
 
 Vulnerability management CI flow:    
 ![CICD Flow](./docs/cicd-flow.png)
