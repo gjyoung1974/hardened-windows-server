@@ -1,19 +1,20 @@
 # Container for running HashiCorp Packer
+# docker build -t gjyoung1974/gcp-packer .
 FROM hashicorp/packer:1.4.2
 LABEL maintainer="Gordon Young <gjyoung1974@gmail.com>"
+LABEL project="gjyoung1974/gcp-packer"
+LABEL org="com.gjyoung1974.cloud.utils.packer.gcp"
 
-USER root
-
-ENV ADMIN_PWD_CIPHERTEXT=""
-ENV ARTIFACT_BUCKET=""
-ENV GCLOUD_SERVICE_KEY=""
-ENV GOOGLE_APPLICATION_CREDENTIALS=""
-ENV GOOGLE_COMPUTE_ZONE=""
-ENV GOOGLE_PROJECT_ID=""
-ENV GCP_NETWORK_ID=""
-ENV GCP_SUBNET_ID=""
-ENV SECRETS_KEY=""
-ENV SECRETS_KEYRING=""
+ENV ADMIN_PWD_CIPHERTEXT
+ENV ARTIFACT_BUCKET
+ENV GCLOUD_SERVICE_KEY
+ENV GOOGLE_APPLICATION_CREDENTIALS
+ENV GOOGLE_COMPUTE_ZONE
+ENV GOOGLE_PROJECT_ID
+ENV GCP_NETWORK_ID
+ENV GCP_SUBNET_ID
+ENV SECRETS_KEY
+ENV SECRETS_KEYRING
 
 # Add GCloud SDK to hashicorp/packer
 RUN PATH=$PATH:/drone/src/google-cloud-sdk/bin && \
