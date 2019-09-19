@@ -106,7 +106,7 @@
       "elevated_password": "",
       "inline": [         
         "Write-Host \"Installing Windows Updates:\"",
-        "Start-Process C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -ArgumentList \"-ExecutionPolicy Unrestricted -File C:/Windows/builder/setup-scripts/win-updates.ps1\" -Wait -NoNewWindow -PassThru"
+        "Write-Host \"Disabled in QEMU Example to save time. See GCP Example for path to Windows Update Scipt:\""
       ]
     },
     {
