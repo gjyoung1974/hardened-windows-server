@@ -64,4 +64,4 @@ For the sake of giving a simplified example, a QEMU packer builder script is inc
 
 ---
 
-2019 #### gjyoung1974@gmail.com
+2019 gjyoung1974@gmail.com
