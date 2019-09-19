@@ -10,6 +10,26 @@ This is an automation of the work provided © Microsoft
 
 ### How is this run? See the [.drone.yml](.drone.yml) job section
 
+### The core of the automation is
+1. **A Bash shell Script:** https://github.com/gjyoung1974/hardened-windows-server/blob/master/windows-packer/build.sh
+2. **The Packer script:** https://github.com/gjyoung1974/hardened-windows-server/blob/master/windows-packer/gcp_hardened_windows_server.json
+3. **Windows Automation scripting** Which applies Windows "Security Hardening" GPOS to the instance: https://github.com/gjyoung1974/hardened-windows-server/blob/master/windows-packer/builder/benchmark-gpos/Local_Script/BaselineLocalInstall.ps1
+
+The basic flow is:
+1. The **CI pipeline** ".drone.yml" calls ./windows-packer/build.sh << in this case we are using Drone.io << (Is portable to whatever Docker based CICD tooling you require)    
+2. **`build.sh`** (a) sets environment variables, (b) performs some utility functions     
+3. **`build.sh`** then runs "$ packer build ./windows-packer/gcp_hardened_windows_server.json"     
+4.  The **packer "script"** (json config) pushes & executes several Windows automation scripts (powershell & others)
+    - The windows automation scripts are located in ./builder/setup-scripts    
+5. **Sysprep:** The final thing packer executes is Windows Sysprep, not one we provide, but the sysprep configuuration that is "baked" into the GCP source image.    
+
+### QEMU Example
+For the sake of giving a simplified example, a QEMU packer builder script is included.    
+- See [./windows-packer/gcp_hardened_windows_server.json](./windows-packer/gcp_hardened_windows_server.json)    
+- The qemu builder script allows you to run the packer locally on a *nix machine (Mac/Linux) with [QEMU](https://www.qemu.org/) installed     
+- Building locally allows you to observe the workflow without the complexity of CICD and the cloud provider
+- Save time and debugging effort by testing things locally     
+
 ### GCP Environment Variables:
 
 `ENV ADMIN_PWD_CIPHERTEXT`    
