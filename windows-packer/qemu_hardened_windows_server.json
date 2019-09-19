@@ -1,0 +1,139 @@
+{
+"variables": {
+  "disk_size": "65536",
+  "cpus" : "2",
+  "memory" : "4196",
+  "headless": "true",
+  "iso_checksum_type": "sha1",
+  "iso_checksum": "c4834f538a90bb41f625144c9a2e0edf8bb9b9b5",
+  "iso_url": "https://software-download.microsoft.com/download/pr/17763.1.180914-1434.rs5_release_SERVER_EVAL_x64FRE_en-us.iso",    
+  "preseed" : "windows-2016-standard/*",
+  "vagrantfile_template" : "scripts/vagrantfile-windows-2019-datacenter.template",
+  "version" : "1",
+  "vm_name": "windows-2019",
+  "floppy_files_list" : "floppy/drivers/virtio-win-0.1.135/viostor/2k16/amd64/*,floppy/drivers/virtio-win-0.1.135/NetKVM/2k16/amd64/*,floppy/common/*,floppy/windows-2016-standard/*",
+  "alt_admin_user": "s0meUsr",
+  "admin_password":"Bc#zGfeP8ZCuZQpy"
+  },
+
+  "_comment": "Packs a security hardened Image of Windows Server 2019 locally - with Qemu/KVM",
+  "builders": [
+    {
+      "type": "qemu",
+      "disk_size": "{{ user `disk_size` }}",
+      "floppy_files": "{{ user `floppy_files_list` }}",
+      "headless": "{{ user `headless` }}",
+      "http_directory": "http",
+      "iso_checksum": "{{ user `iso_checksum` }}",
+      "iso_checksum_type": "{{ user `iso_checksum_type` }}",
+      "iso_urls": ["{{ user `iso_url` }}"],
+      "output_directory": "output-{{ user `vm_name` }}",
+      "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
+      "communicator": "winrm",
+      "winrm_username": "vagrant",
+      "winrm_password": "vagrant",
+      "boot_wait": "2s",
+      "vm_name": "{{ user `vm_name` }}",
+      "qemuargs": [
+        [ "-m", "{{ user `memory` }}" ],
+        [ "-smp", "cpus={{ user `cpus`}}"]
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "windows-shell",
+      "scripts": [
+        "scripts/unlimited-password-expiration.bat",
+        "scripts/enable-rdp.bat",
+        "scripts/uac-disable.bat",
+        "scripts/disable-hibernate.bat",
+        "scripts/firewall-open-ping.bat",
+        "scripts/firewall-open-rdp.bat"
+      ]
+    },
+    {
+      "type": "windows-shell",
+      "inline": ["net user vagrant {{ user `password`}}"]
+    },
+    {
+      "type": "file",
+      "source": "./builder",
+      "destination": "C:\\Windows",
+      "direction": "upload"
+    },
+    { 
+      "type": "windows-shell",
+      "inline": [
+        "echo \"Setting local Admin passwords:\"",
+        "net user /add {{user `alt_admin_user`}} \"{{user `admin_password`}}\" /Y  & net localgroup administrators {{user `alt_admin_user`}} /add  /Y",
+        "net user administrator \"{{user `admin_password`}}\" /Y",
+        "net user administrator /active:yes"
+        
+      ]
+    },
+    {
+      "type": "windows-shell",
+      "inline": [
+        "echo \"Installing logging and monitoring agents:\"",
+        "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -sta -ExecutionPolicy Unrestricted -file C:/Windows/builder/setup-scripts/logging-and-monitoring-agents.ps1"
+        ]
+    },
+    {
+      "type": "powershell",
+      "valid_exit_codes": [ 0, 259 ],
+      "elevated_user": "SYSTEM",
+      "elevated_password": "",
+      "inline": [
+        "Write-Host \"Disable Server Manager start at login:\"",
+        "$Key = \"HKLM:\\SOFTWARE\\Microsoft\\ServerManager\"; if(Test-Path $Key){ Set-ItemProperty -Path $Key -Name \"DoNotOpenServerManagerAtLogon\" -Value 1}",
+
+        "Write-Host \"Enable showing hidden files in Windows explorer:\"",
+        "Start-Process -FilePath \"C:\\Windows\\System32\\reg.exe\"  -ArgumentList \"import C:/Windows/builder/setup-scripts/hidden-files.reg\" -Wait -NoNewWindow -PassThru",
+
+        "Write-Host \"Set login banner text:\"",
+        "Set-ItemProperty -Path \"HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\" -Name \"legalnoticecaption\" -Value \"Legal Notice\"",
+        "Set-ItemProperty -Path \"HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\" -Name \"legalnoticetext\" -Value \"*** This system is for the use of authorized users only. Individuals using this computer system without authority, or in excess of their authority, are subject to having all of their activities on this system monitored and recorded by system personnel. In the course of monitoring individuals improperly using this system, or in the course of system maintenance, the activities of authorized users may also be monitored. Anyone using this system expressly consents to such monitoring and is advised that if such monitoring reveals possible evidence of criminal activity, system personnel may provide the evidence of such monitoring to law enforcement officials. By accessing and using the computer system you to agree to comply with any and all policies and procedures concerning use of company owned computing assets, and information systems. Please contact any of the following groups for those policies and procedures: Information Security, Human Resources Department or Legal Department. Those policies and procedures may be found on the policy portal. Further, use of company owned systems and equipment is monitored, including keystrokes, electronic messaging traffic and internet use. Users of company owned systems and equipment should have no expectation of privacy as to any communication on, or information stored, within the system. Unauthorized use of, or access to, this computer system, and any equipment and violations of any corporate security policies and procedures related to company owned assets, systems and information, may subject you to disciplinary action, up to and including termination of employment and/or criminal prosecution. ***\"",
+
+        "Write-Host \"Installing Python:\"",
+        "Start-Process C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -ArgumentList \"-ExecutionPolicy Unrestricted -File C:/Windows/builder/setup-scripts/install-python.ps1\" -Wait -NoNewWindow -PassThru"
+        ]
+    },
+    {
+      "type": "powershell",
+      "valid_exit_codes": [ 0, 259 ],
+      "elevated_user": "SYSTEM",
+      "elevated_password": "",
+      "inline": [         
+        "Write-Host \"Installing Windows Updates:\"",
+        "Start-Process C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -ArgumentList \"-ExecutionPolicy Unrestricted -File C:/Windows/builder/setup-scripts/win-updates.ps1\" -Wait -NoNewWindow -PassThru"
+      ]
+    },
+    {
+      "type": "powershell",
+      "valid_exit_codes": [ 0, 259 ],
+      "inline": [
+        "echo \"Applying security baseline::\"",
+        "Start-Process C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -ArgumentList \"-ExecutionPolicy Unrestricted -file C:/Windows/builder/benchmark-gpos/Local_Script/BaselineLocalInstall.ps1 -WS2019DomainController\"-Wait -NoNewWindow -PassThru"         ]
+    },
+    {
+      "type": "powershell",
+      "valid_exit_codes": [ 0, 259 ],
+      "elevated_user": "SYSTEM",
+      "elevated_password": "",
+      "inline": [
+        "echo \"Disable Automatic Windows Updates:\"",
+        "Start-Process -FilePath \"C:/Windows/System32/cmd.exe\" -ArgumentList \"/c C:/Windows/builder/setup-scripts/disablewinupdate.bat\" -NoNewWindow -PassThru",
+
+        "write-host \"set the Windows Update service to - disabled\"",
+        "Start-Process -FilePath \"C:/Windows/System32/sc.exe\" -ArgumentList \"config wuauserv start=disabled\" -NoNewWindow -PassThru",
+        
+        "write-host \"stop the service\"",
+        "Start-Process -FilePath \"C:/Windows/System32/sc.exe\" -ArgumentList \"stop wuauserv\" -NoNewWindow -PassThru",
+
+        "write-host \"display the status of the service\"",
+        "Start-Process -FilePath \"C:/Windows/System32/sc.exe\" -ArgumentList \"query wuauserv\" -NoNewWindow -PassThru"
+      ]
+    }
+  ]
+}

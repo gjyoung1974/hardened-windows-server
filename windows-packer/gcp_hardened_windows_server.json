@@ -72,10 +72,7 @@
         "valid_exit_codes": [ 0, 259 ],
         "elevated_user": "SYSTEM",
         "elevated_password": "",
-        "inline": [
-          "Write-Host \"Installing OpenSSH:\"",
-          "Start-Process C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -ArgumentList \"-ExecutionPolicy Unrestricted -File C:/Windows/builder/setup-scripts/install-openssh.ps1\" -Wait -NoNewWindow -PassThru",
-          
+        "inline": [  
           "Write-Host \"Installing Python:\"",
           "Start-Process C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -ArgumentList \"-ExecutionPolicy Unrestricted -File C:/Windows/builder/setup-scripts/install-python.ps1\" -Wait -NoNewWindow -PassThru"
          ]

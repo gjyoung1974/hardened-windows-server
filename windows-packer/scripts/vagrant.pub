@@ -1,0 +1,1 @@
+ssh-rsa ${insert_your_own_key_here} vagrant insecure public key
