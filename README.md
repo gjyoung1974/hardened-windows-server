@@ -44,4 +44,4 @@ This is an automation of the work provided © Microsoft
 
 ---
 
-2019 #### gjyoung1974@gmail.com
+2019 gjyoung1974@gmail.com
